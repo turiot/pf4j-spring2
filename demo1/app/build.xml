@@ -1,0 +1,40 @@
+<project name="Run demo1" default="test" basedir=".">
+    <description>
+        launch demo1 app with plugins (via maven)
+    </description>
+
+    <target name="test">
+        <record name="${basedir}/target/test.log" loglevel="verbose" action="start" />
+
+        <property name="plugins_dir" value="${basedir}/target/plugins"/>
+        <property name="staging_dir" value="${basedir}/target/staging"/>
+
+        <!-- copy plugins to be deployed first -->
+        <delete dir="${plugins_dir}"/>
+        <mkdir dir="${plugins_dir}"/>
+        <copy todir="${plugins_dir}" failonerror="false" flatten="true" verbose="false">
+            <fileset dir="${basedir}/../plugin1/target">
+                <include name="*.zip" />
+            </fileset>
+        </copy>
+        <!-- copy plugins to be deployed after -->
+        <delete dir="${staging_dir}"/>
+        <mkdir dir="${staging_dir}"/>
+        <copy todir="${staging_dir}" failonerror="false" flatten="true" verbose="false">
+            <fileset dir="${basedir}/../plugin1b/target">
+                <include name="*.zip" />
+            </fileset>
+        </copy>
+
+        <!-- run the application -->
+        <java classname="demo1.app.Boot" fork="true" failonerror="true" >
+            <classpath>
+              <path refid="runtime_classpath"/>
+            </classpath>
+            <sysproperty key="pf4j.pluginsDir" value="${plugins_dir}"/>
+            <jvmarg value="-Xmx512m"/>
+        </java>
+    </target>
+
+</project>
+
